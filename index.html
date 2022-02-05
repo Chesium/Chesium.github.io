@@ -2252,7 +2252,7 @@ target="_blank" rel="noopener" href="https://www.chesium.com/2022/02/04/%E5%9C%A
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-01-28 19:25:19" itemprop="dateModified" datetime="2022-01-28T19:25:19+08:00">2022-01-28</time>
+      <time title="Modified: 2022-02-05 11:09:48" itemprop="dateModified" datetime="2022-02-05T11:09:48+08:00">2022-02-05</time>
     </span>
 
   
@@ -2265,7 +2265,9 @@ target="_blank" rel="noopener" href="https://www.chesium.com/2022/02/04/%E5%9C%A
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="gcc-系列">GCC 系列</h2>
+          <p>心血来潮在 Github
+收集了各个主流编程语言的编译器源码，下面列出了各个编译器文件链接以及实现语言（可能会有错误）。</p>
+<h2 id="gcc-系列">GCC 系列</h2>
 <p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://gcc.gnu.org/git/gcc.git">官方仓库</a> <a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc">Github镜像</a></p>
@@ -2275,7 +2277,7 @@ Objective-C, Fortran, Ada, Go, and D, as well as libraries for these
 languages.</p>
 </blockquote>
 <h3 id="c---gcc">C - GCC</h3>
-<p>实现语言：C <a
+<p>实现语言：C（<strong>自举</strong>） <a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/tree/master/gcc/c">各文件目录</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/master/gcc/c/c-parser.c">语法分析器</a></p>
@@ -2287,7 +2289,7 @@ target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/mast
 <p><a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/master/gcc/cp/lex.c">词法分析器</a></p>
 <h3 id="ada---gcc">Ada - GCC</h3>
-<p>实现语言：Ada <a
+<p>实现语言：Ada（<strong>自举</strong>） <a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/tree/master/gcc/ada">各文件目录</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/master/gcc/ada/par.adb">语法分析器</a></p>
@@ -2319,7 +2321,8 @@ target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/mast
 <p><a
 target="_blank" rel="noopener" href="https://github.com/gcc-mirror/gcc/blob/master/gcc/d/dmd/lexer.c">词法分析器</a></p>
 <h2 id="golang">Golang</h2>
-<p>实现语言：Go <a target="_blank" rel="noopener" href="https://golang.org/">官网</a> <a
+<p>实现语言：Go（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://golang.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/golang/go">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/golang/go/tree/master/src/go">各文件目录</a></p>
@@ -2335,7 +2338,7 @@ target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/main/in
 <p><a
 target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/main/include/swift/Parse/Lexer.h">词法分析器</a></p>
 <h2 id="typescript">TypeScript</h2>
-<p>实现语言：TypeScript <a
+<p>实现语言：TypeScript（<strong>自举</strong>） <a
 target="_blank" rel="noopener" href="https://www.typescriptlang.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/microsoft/TypeScript">Github仓库</a></p>
 <p><a
@@ -2343,7 +2346,8 @@ target="_blank" rel="noopener" href="https://github.com/microsoft/TypeScript/tre
 <p><a
 target="_blank" rel="noopener" href="https://github.com/microsoft/TypeScript/blob/main/src/compiler/parser.ts">语法分析器</a></p>
 <h2 id="rust">Rust</h2>
-<p>实现语言：Rust <a target="_blank" rel="noopener" href="https://www.rust-lang.org/">官网</a> <a
+<p>实现语言：Rust（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://www.rust-lang.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/rust-lang/rust">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/rust-lang/rust/tree/master/compiler/rustc_parse/src/parser">语法分析器目录</a></p>
@@ -2356,8 +2360,8 @@ target="_blank" rel="noopener" href="https://github.com/JetBrains/kotlin/tree/ma
 target="_blank" rel="noopener" href="https://github.com/JetBrains/kotlin/blob/master/compiler/psi/src/org/jetbrains/kotlin/parsing/KotlinParsing.java">语法分析器</a></p>
 <h2 id="python">Python</h2>
 <p>实现语言：Python: <a
-target="_blank" rel="noopener" href="https://github.com/we-like-parsers/pegen">Pegen</a>（C） <a
-target="_blank" rel="noopener" href="https://www.python.org/">官网</a> <a
+target="_blank" rel="noopener" href="https://github.com/we-like-parsers/pegen">Pegen</a>（C）（<strong>自举</strong>）
+<a target="_blank" rel="noopener" href="https://www.python.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/python/cpython">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/python/cpython/blob/main/Grammar/python.gram">语法文件</a></p>
@@ -2404,7 +2408,8 @@ target="_blank" rel="noopener" href="https://github.com/elixir-lang/elixir/blob/
 <p><a
 target="_blank" rel="noopener" href="https://github.com/elixir-lang/elixir/blob/main/lib/elixir/src/elixir_lexical.erl">词法分析器</a></p>
 <h2 id="crystal">Crystal</h2>
-<p>实现语言：Crystal <a target="_blank" rel="noopener" href="https://crystal-lang.org/">官网</a> <a
+<p>实现语言：Crystal（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://crystal-lang.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/crystal-lang/crystal">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/crystal-lang/crystal/blob/master/spec/compiler">各文件目录</a></p>
@@ -2420,7 +2425,8 @@ target="_blank" rel="noopener" href="https://github.com/PowerShell/PowerShell/tr
 <p><a
 target="_blank" rel="noopener" href="https://github.com/PowerShell/PowerShell/blob/master/src/System.Management.Automation/engine/parser/Parser.cs">语法分析器</a></p>
 <h2 id="scala">Scala</h2>
-<p>实现语言：Scala <a target="_blank" rel="noopener" href="https://www.scala-lang.org/">官网</a> <a
+<p>实现语言：Scala（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://www.scala-lang.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/scala/scala">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/scala/scala/tree/2.13.x/src/compiler/scala/tools/nsc/ast">各文件目录?</a></p>
@@ -2450,7 +2456,8 @@ target="_blank" rel="noopener" href="https://github.com/elm/compiler/tree/master
 <p><a
 target="_blank" rel="noopener" href="https://github.com/elm/compiler/tree/master/compiler/src/Parse">语法分析器目录</a></p>
 <h2 id="ocaml">OCaml</h2>
-<p>实现语言：OCaml <a target="_blank" rel="noopener" href="https://ocaml.org/">官网</a> <a
+<p>实现语言：OCaml（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://ocaml.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/ocaml/ocaml">Github仓库</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/ocaml/ocaml/blob/trunk/parsing">各文件目录</a></p>
@@ -2479,7 +2486,7 @@ target="_blank" rel="noopener" href="https://github.com/ghc/ghc/blob/master/comp
 <p><a
 target="_blank" rel="noopener" href="https://github.com/ghc/ghc/blob/master/compiler/GHC/Parser/Lexer.x">词法分析器</a></p>
 <h2 id="scheme---chez-scheme">Scheme - Chez Scheme</h2>
-<p>实现语言：Scheme <a
+<p>实现语言：Scheme（<strong>自举</strong>） <a
 target="_blank" rel="noopener" href="http://www.scheme-reports.org/">语言官网</a> <a
 target="_blank" rel="noopener" href="https://cisco.github.io/ChezScheme/">编译器官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/cisco/ChezScheme">Github仓库</a></p>
@@ -2504,8 +2511,9 @@ target="_blank" rel="noopener" href="https://github.com/SWI-Prolog/swipl-devel">
 target="_blank" rel="noopener" href="https://github.com/SWI-Prolog/swipl-devel/blob/master/src">各文件目录</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/SWI-Prolog/swipl-devel/blob/master/src/pl-comp.c">编译器</a></p>
-<h2 id="clang-系列llvm">Clang 系列（LLVM）</h2>
-<p>实现语言：C <a target="_blank" rel="noopener" href="https://clang.llvm.org/">官网</a> <a
+<h2 id="clang-系列">Clang 系列</h2>
+<p>实现语言：C（<strong>自举</strong>） <a
+target="_blank" rel="noopener" href="https://clang.llvm.org/">官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project/tree/main/clang">Github目录</a></p>
 <blockquote>
 <p>The Clang project provides a language front-end and tooling
@@ -2527,7 +2535,7 @@ target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/master/
 <p>实现语言：Erlang: <a
 target="_blank" rel="noopener" href="https://www.erlang.org/doc/man/yecc.html">YECC</a> <a
 target="_blank" rel="noopener" href="http://erlang.org/">官网</a> <a
-target="_blank" rel="noopener" href="https://github.com/erlang/otp">Github仓库</a></p>
+target="_blank" rel="noopener" href="https://github.com/erlang/otp">Github仓库</a>（<strong>自举</strong>）</p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/erlang/otp/blob/master/lib/stdlib/src/erl_parse.yrl">语法分析器</a></p>
 <p><a
@@ -2549,14 +2557,32 @@ target="_blank" rel="noopener" href="https://github.com/Perl/perl5/blob/blead/pe
 <p><a
 target="_blank" rel="noopener" href="https://github.com/Perl/perl5/blob/blead/toke.c">词法分析器</a></p>
 <h2 id="raku---rakudo">Raku - Rakudo</h2>
-<p>实现语言：C</p>
-<p><a target="_blank" rel="noopener" href="https://raku.org/">语言官网</a> <a
+<p>实现语言：C <a target="_blank" rel="noopener" href="https://raku.org/">语言官网</a> <a
 target="_blank" rel="noopener" href="https://github.com/rakudo/rakudo">编译器官网</a></p>
 <p><a target="_blank" rel="noopener" href="https://github.com/Perl/perl5">各文件目录</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/Perl/perl5/blob/blead/perly.c">语法分析器</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://github.com/Perl/perl5/blob/blead/toke.c">词法分析器</a></p>
+<h3 id="更新历史">更新历史</h3>
+<table>
+<thead>
+<tr class="header">
+<th>日期</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2021.12.8</td>
+<td>整理完成</td>
+</tr>
+<tr class="even">
+<td>2022.2.5</td>
+<td>增补、添加前言，发布</td>
+</tr>
+</tbody>
+</table>
 
       
     </div>
