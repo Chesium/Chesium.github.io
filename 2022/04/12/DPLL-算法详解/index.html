@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/chesium-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/chesium-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="\(\text{By}\ \mathsf{Chesium}\) DPLL 算法，全称为 Davis-Putnam-Logemann-Loveland（戴维斯-普特南-洛吉曼-洛夫兰德）算法，是一种完备的，基于回溯（backtracking）的搜索算法，用于判定命题逻辑公式（为合取范式形式）的可满足性，也就是求解 SAT（布尔可满足性问题）的一种（或者一类）算法。 SAT 问题简介 何为布">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DPLL 算法详解">
+<meta property="og:url" content="http://example.com/2022/04/12/DPLL-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Chesium Knowledgide">
+<meta property="og:description" content="\(\text{By}\ \mathsf{Chesium}\) DPLL 算法，全称为 Davis-Putnam-Logemann-Loveland（戴维斯-普特南-洛吉曼-洛夫兰德）算法，是一种完备的，基于回溯（backtracking）的搜索算法，用于判定命题逻辑公式（为合取范式形式）的可满足性，也就是求解 SAT（布尔可满足性问题）的一种（或者一类）算法。 SAT 问题简介 何为布">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://s1.328888.xyz/2022/04/12/fDkq3.png">
+<meta property="og:image" content="https://s1.328888.xyz/2022/04/12/fDaeQ.png">
+<meta property="article:published_time" content="2022-04-12T01:15:34.000Z">
+<meta property="article:modified_time" content="2022-04-12T01:26:58.585Z">
+<meta property="article:author" content="Chesium">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.328888.xyz/2022/04/12/fDkq3.png">
+
+
+<link rel="canonical" href="http://example.com/2022/04/12/DPLL-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2022/04/12/DPLL-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/","path":"2022/04/12/DPLL-算法详解/","title":"DPLL 算法详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>DPLL 算法详解 | Chesium Knowledgide</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Chesium Knowledgide</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Blog of Chesium</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#sat-%E9%97%AE%E9%A2%98%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">SAT 问题简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9A%B4%E5%8A%9B%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">暴力方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">算法概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5%E8%AF%B4%E6%98%8E"><span class="nav-number">4.</span> <span class="nav-text">概念说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%96%E7%AE%80%E6%AD%A5%E9%AA%A4"><span class="nav-number">5.</span> <span class="nav-text">化简步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8C%96%E7%AE%80%E6%AD%A5%E9%AA%A4%E5%8D%95%E4%BD%8D%E5%AD%90%E5%8F%A5%E4%BC%A0%E6%92%ADunit-propagation"><span class="nav-number">5.1.</span> <span class="nav-text">第一个化简步骤：单位子句传播（Unit
+propagation）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%8C%96%E7%AE%80%E6%AD%A5%E9%AA%A4%E5%AD%A4%E7%AB%8B%E6%96%87%E5%AD%97%E6%B6%88%E5%8E%BBpure-literal-elimination"><span class="nav-number">5.2.</span> <span class="nav-text">第二个化简步骤：孤立文字消去（Pure
+literal elimination）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">算法流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">7.</span> <span class="nav-text">具体实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="nav-number">8.</span> <span class="nav-text">实现代码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E6%A0%88%E9%93%BE%E8%A1%A8%E5%AE%9E%E7%8E%B0%E9%83%A8%E5%88%86"><span class="nav-number">8.1.</span> <span class="nav-text">“指针栈链表”实现部分：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%83%A8%E5%88%86"><span class="nav-number">8.2.</span> <span class="nav-text">数据结构部分：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E4%B8%BB%E4%BD%93%E9%83%A8%E5%88%86"><span class="nav-number">8.3.</span> <span class="nav-text">算法主体部分：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">9.</span> <span class="nav-text">代码使用示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">10.</span> <span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Chesium</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/12/DPLL-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Chesium">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Chesium Knowledgide">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="DPLL 算法详解 | Chesium Knowledgide">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DPLL 算法详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-04-12 09:15:34 / Modified: 09:26:58" itemprop="dateCreated datePublished" datetime="2022-04-12T09:15:34+08:00">2022-04-12</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p><span class="math inline">\(\text{By}\ \mathsf{Chesium}\)</span></p>
+<p><strong>DPLL 算法</strong>，全称为
+Davis-Putnam-Logemann-Loveland（戴维斯-普特南-洛吉曼-洛夫兰德）算法，是一种完备的，基于<strong>回溯</strong>（backtracking）的搜索算法，用于判定命题逻辑公式（为合取范式形式）的<strong>可满足性</strong>，也就是求解
+SAT（布尔可满足性问题）的一种（或者一类）算法。</p>
+<h3 id="sat-问题简介">SAT 问题简介</h3>
+<p>何为布尔可满足性问题？给定一条真值表达式，包含<strong>逻辑变量</strong>（又称
+<em>变量</em>、<em>命题变号</em>、<em>原子</em>，用小写字母 <span
+class="math inline">\(a,b,\dots\)</span>
+表示）、<strong>逻辑与</strong>（AND，记为 “<span
+class="math inline">\(\wedge\)</span>”
+）运算符、<strong>逻辑或</strong>（OR，记为 “<span
+class="math inline">\(\vee\)</span>”
+）运算符以及<strong>非</strong>（NOT，否定，记为“<span
+class="math inline">\(\neg\)</span>”）运算符，如： <span
+class="math display">\[
+(a\wedge\neg b\wedge(\neg(c\vee d\vee\neg a)\vee(b\wedge\neg
+d)))\vee(\neg(\neg(\neg b\vee a)\wedge c)\wedge d)
+\]</span> 是否存在一组对这些变量的赋值（如把所有 <span
+class="math inline">\(a\)</span> 和 <span
+class="math inline">\(d\)</span> 均赋值为 <span
+class="math inline">\(\mathrm{True}\)</span> ，将所有 <span
+class="math inline">\(b\)</span> 和 <span
+class="math inline">\(c\)</span> 赋值为 <span
+class="math inline">\(\mathrm{False}\)</span>
+），使得整条式子最终的运算结果为 <span
+class="math inline">\(\mathrm{True}\)</span>
+？若可以，那么这个性质被称为这条逻辑公式的<strong>可满足性</strong>（satisfiability），如何快速高效地判断任意指定逻辑公式的可满足性是理论计算机科学中的一个重要的问题，也是第一个被证明为<strong>NP-完全</strong>（NP-complete，NPC）的问题。</p>
+<h3 id="暴力方案">暴力方案</h3>
+<p>对于这个问题，我们能够很容易地想到一种“暴力”的判定方法：测试这些变量赋值的每种可能的排列方式（如全部赋为
+<span class="math inline">\(\mathrm{True}\)</span> 、其一为 <span
+class="math inline">\(\mathrm{True}\)</span> 其他全为 <span
+class="math inline">\(\mathrm{False}\)</span>
+……），若存在一种赋值排列使得公式的结果为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，那么就可以说明这条公式是可满足的。但很显然，最坏情况下这种方法需要我们测试
+<span class="math inline">\(2^n\)</span> 种（<span
+class="math inline">\(n\)</span>
+为变量数）赋值排列，而用于检查每种赋值排列最终的运算结果也是不可忽略的。因此，随着公式规模的扩大，这种暴力算法所需的运算量会呈指数级飞快增长，这是我们不可接受的。</p>
+<h3 id="算法概述">算法概述</h3>
+<p>但是根据现有计算复杂度理论，SAT问题是无法在多项式时间复杂度内解决的，DPLL算法也不例外。</p>
+<p>DPLL算法是一种搜索算法，思想与DFS（Depth-first
+search，深度优先搜索）十分相似，或者说DPLL算法本身就属于DFS的范畴，其类似于上述我们设想的“暴力”算法：搜索所有可能的赋值排列。</p>
+<p>具体地说，算法会在公式中选择一个变量（命题变号），将其赋值为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，化简赋值后的公式，如果简化的公式是可满足的（递归地判断），那么原公式也是可满足的。否则就反过来将该变量赋值为
+<span class="math inline">\(\mathrm{False}\)</span>
+，再执行一遍递归的判定，若也不能满足，那么原公式便是不可满足的。</p>
+<p>这被称为 <em>分离规则</em> （splitting
+rule），因为其将原问题分离为了两个更加简单的问题。</p>
+<h3 id="概念说明">概念说明</h3>
+<p>DPLL算法求解的是<strong>合取范式</strong>（Conjunctive normal
+form，CNF），这是指形如下式的逻辑公式： <span class="math display">\[
+(a\vee b\vee\neg c)\wedge
+(\neg d\vee x_1\vee\neg x_2\vee\dots\vee x_7)\wedge
+(\neg r\vee v\vee g)\wedge\dots\wedge
+(a\vee d\vee\neg d)
+\]</span>
+其由多个括号括住部分的<strong>逻辑与</strong>组成，每一个括号内又是许多变量或变量的<strong>否定</strong>（逻辑非）的<strong>逻辑或</strong>组成。可以证明，所有只包含逻辑与、逻辑或、逻辑非、逻辑蕴含和括号的逻辑公式均可化为等价的合取范式。下面，我们称整个范式为“公式”，称每个括号里的部分为该公式的<strong>子句</strong>（clause），每个子句中的每个变量或其否定为<strong>文字</strong>（literal）。</p>
+<p>可以看出，要使整条公式结果为 <span
+class="math inline">\(\mathrm{True}\)</span> ，其所有子句都必须为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，也就是说，每个子句中都至少有一个文字为 <span
+class="math inline">\(\mathrm{True}\)</span> ，这个结论下面会用到。</p>
+<p>DPLL 算法中的化简步骤实际上就是移除所有在赋值后值为 <span
+class="math inline">\(\mathrm{True}\)</span>
+的子句，以及所有在赋值后值为 <span
+class="math inline">\(\mathrm{False}\)</span> 的文字。</p>
+<h3 id="化简步骤">化简步骤</h3>
+<p>这两个化简步骤是 DPLL
+算法与我们“暴力”算法的主要区别，它们大大减少了搜索量，亦即加快了算法的运行速度。</p>
+<h4
+id="第一个化简步骤单位子句传播unit-propagation">第一个化简步骤：<strong>单位子句传播</strong>（Unit
+propagation）</h4>
+<p>我们称只含有一个（未赋值）变量的子句为<strong>单位子句</strong>（unit
+clause），根据上面的结论，要想让公式为 <span
+class="math inline">\(\mathrm{True}\)</span> ，这个子句必须为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，即这个变量对应的文字必须被赋值为 <span
+class="math inline">\(\mathrm{True}\)</span> 。</p>
+<p>比如下面的这条公式： <span class="math display">\[
+(a\vee b\vee c\vee\neg d)\wedge(\neg a\vee c)\wedge(\neg c\vee
+d)\wedge(a)
+\]</span> 其中最后一个子句就为单位子句，亦即我们要使文字 <span
+class="math inline">\((a)\)</span> 为 <span
+class="math inline">\(\mathrm{True}\)</span> 。</p>
+<p>然后，我们要依次处理这个变量在其他子句中的出现，如果另一个子句中的一个文字与单位子句中的文字相同，如上面例子中的
+<span class="math inline">\((a\vee b\vee c\vee\neg d)\)</span>
+子句，我们知道 <span class="math inline">\((a)\)</span> 的值必须为 <span
+class="math inline">\(\mathrm{True}\)</span> ，所以这个子句也肯定为
+<span class="math inline">\(\mathrm{True}\)</span>
+，这意味着这个子句就不会对整个公式产生额外的约束（即 <span
+class="math inline">\(b,c,d\)</span>
+的取值不会影响该子句的取值），我们完全可以忽略这个子句，那就删掉它吧。</p>
+<p>再考虑上式中第二个子句，其中出现了 <span
+class="math inline">\((a)\)</span> 的否定文字，我们知道它不可能为 <span
+class="math inline">\(\mathrm{True}\)</span> 了，要让这个子句的值为
+<span class="math inline">\(\mathrm{True}\)</span> ，只能寄希望于 <span
+class="math inline">\(c\)</span> 的取值了，我们完全可以把 <span
+class="math inline">\(\neg a\)</span>
+删除（因为有没有它不影响该子句的取值）。</p>
+<p>而第上式中第三个子句不包含 <span class="math inline">\((a)\)</span>
+或其否定的出现，即 <span class="math inline">\(a\)</span>
+的取值不影响这个子句的取值，我们保持其不变即可。</p>
+<p>这样，上述公式便被化简为了： <span class="math display">\[
+(c)\wedge(\neg c\vee d)\wedge(a)
+\]</span> 这个操作就被称为<strong>单位子句传播</strong>。</p>
+<p>概括：<strong>对于所有只包含一个文字 <span
+class="math inline">\(\mathrm{L}\)</span>
+的子句，对于公式剩余部分中的每个子句 <span
+class="math inline">\(\mathrm{C}\)</span>：</strong></p>
+<ul>
+<li><strong>若 <span class="math inline">\(\mathrm{C}\)</span> 包含
+<span class="math inline">\(\mathrm{L}\)</span>（非否定），则删除 <span
+class="math inline">\(\mathrm{C}\)</span>。</strong></li>
+<li><strong>若 <span class="math inline">\(\mathrm{C}\)</span> 包含
+<span class="math inline">\(\neg\mathrm{L}\)</span>，则删除这个 <span
+class="math inline">\(\neg\mathrm{L}\)</span>。</strong></li>
+</ul>
+<p>经过一次操作，我们发现公式中又出现了一个新的单位子句 <span
+class="math inline">\((c)\)</span>
+，我们可以继续对其实施一遍单位子句传播，一直到整个公式中不存在任何一个单位子句对应的变量在其他子句中出现为止。</p>
+<p>上式可被化简为： <span class="math display">\[
+(c)\wedge(d)\wedge(a)
+\]</span> 现在即使公式中每个子句都是单位子句，但是其分别对应的变量 <span
+class="math inline">\(c,d,a\)</span>
+没有在除单位子句之外的子句中出现了，单位子句传播已经没有用了，我们要实施第二个化简步骤。</p>
+<h4
+id="第二个化简步骤孤立文字消去pure-literal-elimination">第二个化简步骤：<strong>孤立文字消去</strong>（Pure
+literal elimination）</h4>
+<p>如果一个变量在整个公式中只出现了一次，那么我们可以将其进行恰当的赋值，使其所在的子句为
+<span class="math inline">\(\mathrm{True}\)</span>
+。具体地说，如果其出现的那一次是以否定形式出现的，那么就将变量赋值为
+<span class="math inline">\(\mathrm{False}\)</span> ，这可使其对应文字为
+<span class="math inline">\(\mathrm{True}\)</span> ，即使其所在子句为
+<span class="math inline">\(\mathrm{True}\)</span> ，反正则将变量赋值为
+<span class="math inline">\(\mathrm{True}\)</span>
+，最终也能使其所在的子句为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，接下来就和上述单位子句传播中发现子句为 <span
+class="math inline">\(\mathrm{True}\)</span>
+时的处理方式相同——删掉这个子句。</p>
+<p>一句话概括，就为：<strong>删除所有孤立变量所在的子句</strong>。</p>
+<p>对于以下的公式： <span class="math display">\[
+(\neg r\vee u)\wedge(r\vee \textcolor{red}{c}\vee\neg u)\wedge(\neg
+k\vee r)\wedge(\textcolor{blue}{\neg d}\wedge k)
+\]</span> 其中标红的变量 <span class="math inline">\(c\)</span>
+在整个公式中只出现了一次，我们可以将其赋值为 <span
+class="math inline">\(\mathrm{True}\)</span> 使得其所在的子句 <span
+class="math inline">\((r\vee \textcolor{red}{c}\vee\neg u)\)</span> 为
+<span class="math inline">\(\mathrm{True}\)</span>
+，我们可以将这个子句删除。同样的，标蓝的变量 <span
+class="math inline">\(d\)</span>
+在整个公式中只出现了一次，且是以否定形式出现的，我们可以将其赋值为 <span
+class="math inline">\(\mathrm{False}\)</span> ，使其所在子句为 <span
+class="math inline">\(\mathrm{True}\)</span>
+，我们也可以将其删除。由此，公式被化简为了： <span
+class="math display">\[
+(\neg r\vee u)\wedge(\neg k\vee r)
+\]</span> 再来看上面的例子： <span class="math display">\[
+(c)\wedge(d)\wedge(a)
+\]</span>
+所有三个变量都是孤立出现的，我们可以把这三个子句全部删除，整个公式就为空了，由此我们能判断出原公式是可满足的。</p>
+<p>以上就是这两个化简步骤。</p>
+<h3 id="算法流程">算法流程</h3>
+<p>下面给出 DPLL 算法的伪代码，先前说过，DPLL
+算法实质上是一个深度优先搜索算法，所以两者十分相似。 <span
+class="math display">\[
+\begin{aligned}
+&amp;\mathtt{1}\quad
+\mathtt{\textcolor{red}{Algorithm}}\ \ \mathrm{DPLL}(\mathtt{CNF}\ \
+\textcolor{green}{\Phi}):=\\
+&amp;\mathtt{2}\quad\qquad
+\mathtt{\textcolor{red}{do}}\ \ \text{UP}(\textcolor{green}{\Phi})\ \
+\mathtt{\textcolor{red}{until}}\ \ \text{It changed nothing}.\\
+&amp;\mathtt{3}\quad\qquad
+\mathtt{\textcolor{red}{do}}\ \ \text{PLE}(\textcolor{green}{\Phi})\ \
+\mathtt{\textcolor{red}{until}}\ \ \text{It changed nothing}.\\
+&amp;\mathtt{4}\quad\qquad
+\mathtt{\textcolor{red}{if}}\ \ \textcolor{green}{\Phi}=\varnothing\ \
+\mathtt{\textcolor{red}{then}}\\
+&amp;\mathtt{5}\quad\qquad\qquad
+\mathtt{\textcolor{red}{return}}\ \ \mathrm{\textcolor{blue}{true}}.\\
+&amp;\mathtt{6}\quad\qquad
+\mathtt{\textcolor{red}{if}}\ \ \exists
+L\in\textcolor{green}{\Phi},L=\varnothing\ \
+\mathtt{\textcolor{red}{then}}\\
+&amp;\mathtt{7}\quad\qquad\qquad
+\mathtt{\textcolor{red}{return}}\ \ \mathrm{\textcolor{blue}{false}}.\\
+&amp;\mathtt{8}\quad\qquad
+x\leftarrow\mathrm{ChooseVariable}(\textcolor{green}{\Phi})\\
+&amp;\mathtt{9}\quad\qquad
+\mathtt{\textcolor{red}{return}}\ \
+\mathrm{DPLL}(\textcolor{green}{\Phi}_{x\to\mathrm{\textcolor{blue}{true}}})
+\ \ \mathtt{\textcolor{red}{or}}\ \
+\mathrm{DPLL}(\textcolor{green}{\Phi}_{x\to\mathrm{\textcolor{blue}{false}}})
+\end{aligned}
+\]</span> 其中 <span class="math inline">\(\mathrm{UP}(\Phi)\)</span> 与
+<span class="math inline">\(\mathrm{PLE}(\Phi)\)</span> 分别是指对公式
+<span class="math inline">\(\Phi\)</span>
+进行<strong>单位子句传播</strong>和<strong>孤立文字消去</strong>，<span
+class="math inline">\(\mathrm{ChooseVariable}(\Phi)\)</span> 是指在公式
+<span class="math inline">\(\Phi\)</span>
+中选取一个变量（未赋值），根据现有的研究，这个选取变量的策略（被称为<strong>启发函数</strong>（heuristic
+function））会大大影响 DPLL 算法的运行效率，根据变量选择策略不同，DPLL
+算法也有许多变种，但这不在我们现在的讨论范围内，作为初学者，我们就让<span
+class="math inline">\(\mathrm{ChooseVariable}(\Phi)\)</span>
+直接选择变量序列中的第一个变量。</p>
+<p>第 <span class="math inline">\(9\)</span> 行中的 <span
+class="math inline">\(\Phi_{x\to\mathrm{true}}\)</span> 是指将公式 <span
+class="math inline">\(\Phi\)</span> 中的变量 <span
+class="math inline">\(x\)</span> 赋值为 <span
+class="math inline">\(\mathrm{True}\)</span>，并根据在化简规则中描述过的方式处理赋值变量（删除包含其肯定出现的子句，并删除其否定形式的文字）后的公式，
+<span class="math inline">\(\Phi_{x\to\mathrm{false}}\)</span>
+也如此，只不过将两种操作反过来。</p>
+<p>可以看出这是个递归程序，对于输入的非空的原始公式 <span
+class="math inline">\(\Phi_0\)</span>，其在两种情况下中止：</p>
+<ul>
+<li>公式 <span class="math inline">\(\Phi\)</span>
+为空，产生这种情况的原因只可能是：各个子句经过变量的赋值后值必为 <span
+class="math inline">\(\mathrm{True}\)</span>，不对 <span
+class="math inline">\(\Phi\)</span>
+中其他变量的赋值产生约束而全被删除。这意味着原始的 <span
+class="math inline">\(\Phi_0\)</span>
+经过一部分（当然也可能是全部）变量的赋值后其所有子句的值都恒为 <span
+class="math inline">\(\mathrm{True}\)</span>，<span
+class="math inline">\(\Phi_0\)</span> 是可满足的。</li>
+<li>公式 <span class="math inline">\(\Phi\)</span>
+包含空子句，产生这种情况的原因只可能是：这个子句中所有文字均在经过赋值后值为
+<span
+class="math inline">\(\mathrm{False}\)</span>，因此这些文字均被删除了，那么这个子句便不可能值为
+<span class="math inline">\(\mathrm{True}\)</span>，公式 <span
+class="math inline">\(\Phi\)</span> 是不可满足的。（这并不代表 <span
+class="math inline">\(\Phi_0\)</span>
+无法满足，因为这只是一种可能的赋值排列）</li>
+</ul>
+<h3 id="具体实现">具体实现</h3>
+<p>接下来，我们就开始着手从零实现一个基础款（不带复杂的 <span
+class="math inline">\(\mathrm{ChooseVariable}(\Phi)\)</span>
+启发函数）的 DPLL 算法。</p>
+<p>注意到，算法中涉及到大量的文字删除和子句删除操作，而且可能出现在文字列表和子句列表中间的任意位置（即不是简单地删除头或尾），而且处理各个子句、文字时遍历较多，而无需随机访问。我使用了<strong>链表</strong>（Linked
+list）来存储我们处理的公式。具体地说，我们使用一个二维链表来存储合取范式，它可以看作是子句的列表，而每个子句又可看作文字的列表。</p>
+每个文字有两个属性：变量编号（整数）和是否为否定文字（布尔值）。输入时我们将所有变量标识符离散化为变量编号。
+<img src="https://s1.328888.xyz/2022/04/12/fDkq3.png"
+alt="用二维链表来存储合取范式" />
+<center>
+<font face="楷体">图1：用二维链表来存储合取范式</font>
+</center>
+<p>要删除一个文字时，我们只需将前一个文字的 <span
+class="math inline">\(\mathrm{.nxt}\)</span>
+指针指向下一个文字，并将下一个文字的 <span
+class="math inline">\(\mathrm{.prv}\)</span>
+指针指向前一个文字即可，删除子句同理。</p>
+<p>但是，我们发现算法过程中涉及到
+<font face="楷体">找到特定逻辑变量的所有文字</font>
+的操作，如将某个变量赋值时就必须依次处理其所有文字，若只采取上述链表的结构，每次处理时就必须遍历所有子句、文字。我们可以通过再维护一个按变量名索引的二维链表，从而实现高效地遍历任意变量的所有文字。这看上去像是给上面的链表结构增加了许多“跳线”。对于合取范式：
+<span class="math display">\[
+(a\vee\neg c\vee d)\wedge(d\vee\neg b\vee c\vee\neg t)\wedge(\neg a\vee
+b\vee c)
+\]</span> 我们就可以建立如下图的结构来存储：</p>
+<figure>
+<img src="https://s1.328888.xyz/2022/04/12/fDaeQ.png"
+alt="在二维链表的基础上添加“跳线”以实现更高效的遍历" />
+<figcaption
+aria-hidden="true">在二维链表的基础上添加“跳线”以实现更高效的遍历</figcaption>
+</figure>
+<center>
+<font face="楷体">图2：在二维链表的基础上添加“跳线”以实现更高效的遍历</font>
+</center>
+<p>当然，其中仅仅画出了部分关键的指针结构，具体实现中天蓝色的“跳线”也是双向的，我们也可以通过增加一些额外的指针存储实现
+<font face="楷体">通过文字找到其所在子句、通过文字找到其对应的文字列表</font>。</p>
+<p>除了图中的结构，通过在文字、子句的删除中维护一个“没有经过单位子句传播的单位子句”集合（或列表），以及一个
+<font face="楷体">只有一个对应文字的变量</font>
+集合，我们可以不通过遍历找到所有单位子句和孤立变量以上述两个化简步骤。</p>
+<p>但是，难题还在后头：这是个递归算法，涉及到对前几次历史版本的回溯。具体地说，在某种赋值（部分）组合下公式不可能满足，这时我们需要还原刚刚进行的化简操作和赋值操作，检查不同的赋值下公式能否满足，即进入另一个搜索分支。</p>
+<p>如何进行回溯呢？最简单的就如伪代码中的，递归时直接通过调用函数中参数的复制传递复制一份整个公式结构的历史版本，这听上去虽然效率不高但实现简单，但事实上对于包含如此多指针的数据结构，要复制出完整、独立的一份必然涉及到大量指针的重定向，而这是十分困难且涉及到许多细节的，何况即使实现了，面对较大的递归层数，程序会占用很多内存，而且包含大量重复的冗余部分。</p>
+<p>这里，我采用了一种基于 <font face="楷体">栈</font> 和
+<font face="楷体">增量存储</font> 思想的数据结构。DPLL
+算法可以看作一个在二叉树上进行 DFS
+搜索的算法，程序在执行这种递归算法时会在函数（递归时就是自身）的调用中维护一个堆栈，存储每次函数调用中的局部变量。我仿照了这种结构，用栈来存储公式结构在一层层搜索的赋值中改变的部分。</p>
+<p>具体地说，上面 <font face="楷体">图2</font>
+中的每一个箭头都是一个“指针栈”，存储着一系列的指针，标识该指针在递归过程中的一系列变化。在每一个搜索到的公式状态节点进行化简、赋值时，我们只访问、修改栈顶的指针，并用一个集合来标识在本次处理（化简、赋值）中修改过的指针栈，这些集合又用一个栈来维护。回溯至上一层时遍历栈顶的集合，将其中所有指针栈的栈顶释出，从而实现对历史公式版本的还原。上述数据结构可以看作一个简单的
+<font face="楷体">部分可持久化链表组</font>
+，当然这其中也有许多可供优化的地方。</p>
+<h3 id="实现代码">实现代码</h3>
+<p>下面给出部分核心代码，完整代码可见：</p>
+<ul>
+<li><p>Chesium/DPLL (github.com)</p>
+<p><a
+target="_blank" rel="noopener" href="https://github.com/Chesium/DPLL">https://github.com/Chesium/DPLL</a></p>
+<p>代码使用说明见文末。</p></li>
+</ul>
+<h4 id="指针栈链表实现部分">“指针栈链表”实现部分：</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">node</span> &#123;</span><br><span class="line">  stack&lt;node&lt;T&gt; *&gt; prvPS, nxtPS;</span><br><span class="line">  slist&lt;T&gt; *L;</span><br><span class="line">  T *X = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">node</span>(slist&lt;T&gt; *l, T *x = <span class="literal">nullptr</span>, node&lt;T&gt; *_prv = <span class="literal">nullptr</span>,</span><br><span class="line">       node&lt;T&gt; *_nxt = <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;L = l;</span><br><span class="line">    <span class="keyword">if</span> (x != <span class="literal">nullptr</span>) <span class="keyword">this</span>-&gt;X = <span class="keyword">new</span> <span class="built_in">T</span>(*x);</span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">init_upd</span>(_prv, _nxt);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="type">void</span> __upd(node&lt;T&gt; *_prv, node&lt;T&gt; *_nxt) &#123;</span><br><span class="line">    <span class="keyword">if</span> (_prv != <span class="literal">nullptr</span>) <span class="keyword">this</span>-&gt;prvPS.<span class="built_in">push</span>(_prv);</span><br><span class="line">    <span class="keyword">if</span> (_nxt != <span class="literal">nullptr</span>) <span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">push</span>(_nxt);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">init_upd</span><span class="params">(node&lt;T&gt; *_prv, node&lt;T&gt; *_nxt)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_prv != <span class="literal">nullptr</span>)</span><br><span class="line">      <span class="keyword">while</span> (!<span class="keyword">this</span>-&gt;prvPS.<span class="built_in">empty</span>()) <span class="keyword">this</span>-&gt;prvPS.<span class="built_in">pop</span>();</span><br><span class="line">    <span class="keyword">if</span> (_nxt != <span class="literal">nullptr</span>)</span><br><span class="line">      <span class="keyword">while</span> (!<span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">empty</span>()) <span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">pop</span>();</span><br><span class="line">    <span class="keyword">this</span>-&gt;__upd(_prv, _nxt);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">upd</span><span class="params">(node&lt;T&gt; *_prv, node&lt;T&gt; *_nxt)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (_prv != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">      <span class="keyword">auto</span> it = <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">find</span>(&amp;(<span class="keyword">this</span>-&gt;prvPS));</span><br><span class="line">      <span class="keyword">if</span> (it == <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">end</span>())</span><br><span class="line">        <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">insert</span>(&amp;(<span class="keyword">this</span>-&gt;prvPS));</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">this</span>-&gt;prvPS.<span class="built_in">pop</span>();</span><br><span class="line">      <span class="keyword">this</span>-&gt;prvPS.<span class="built_in">push</span>(_prv);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (_nxt != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">      <span class="keyword">auto</span> it = <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">find</span>(&amp;(<span class="keyword">this</span>-&gt;nxtPS));</span><br><span class="line">      <span class="keyword">if</span> (it == <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">end</span>())</span><br><span class="line">        <span class="keyword">this</span>-&gt;L-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">insert</span>(&amp;(<span class="keyword">this</span>-&gt;nxtPS));</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">pop</span>();</span><br><span class="line">      <span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">push</span>(_nxt);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">isHead</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;L-&gt;<span class="built_in">begin</span>() == <span class="keyword">this</span>; &#125;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">isTail</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;L-&gt;<span class="built_in">end</span>() == <span class="keyword">this</span>; &#125;</span><br><span class="line">  <span class="function">node&lt;T&gt; *<span class="title">prev</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;prvPS.<span class="built_in">top</span>(); &#125;</span><br><span class="line">  <span class="function">node&lt;T&gt; *<span class="title">next</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;nxtPS.<span class="built_in">top</span>(); &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">slist</span> &#123;</span><br><span class="line">  stack&lt;node&lt;T&gt; *&gt; beginPS, endPS;</span><br><span class="line">  rmRecorder&lt;T&gt; *Recorder = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">slist</span>() &#123;</span><br><span class="line">    <span class="keyword">auto</span> primNode = <span class="keyword">new</span> <span class="built_in">node</span>&lt;T&gt;(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">push</span>(primNode);</span><br><span class="line">    <span class="keyword">this</span>-&gt;endPS.<span class="built_in">push</span>(primNode);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">node&lt;T&gt; *<span class="title">begin</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">top</span>(); &#125;</span><br><span class="line">  <span class="function">node&lt;T&gt; *<span class="title">end</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;endPS.<span class="built_in">top</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">regRec</span><span class="params">(rmRecorder&lt;T&gt; *rec)</span> </span>&#123; <span class="keyword">this</span>-&gt;Recorder = rec; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">empty</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;<span class="built_in">begin</span>() == <span class="keyword">this</span>-&gt;<span class="built_in">end</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">single</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;<span class="built_in">empty</span>()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>-&gt;<span class="built_in">begin</span>()-&gt;<span class="built_in">next</span>() == <span class="keyword">this</span>-&gt;<span class="built_in">end</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">add</span><span class="params">(T x)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;<span class="built_in">empty</span>()) &#123;</span><br><span class="line">      <span class="keyword">while</span> (!<span class="keyword">this</span>-&gt;beginPS.<span class="built_in">empty</span>()) <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">pop</span>();</span><br><span class="line">      <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">push</span>(<span class="keyword">new</span> <span class="built_in">node</span>&lt;T&gt;(<span class="keyword">this</span>, &amp;x, <span class="literal">nullptr</span>, <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()));</span><br><span class="line">      <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()-&gt;<span class="built_in">init_upd</span>(<span class="keyword">this</span>-&gt;<span class="built_in">begin</span>(), <span class="literal">nullptr</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">auto</span> NewNode = <span class="keyword">new</span> <span class="built_in">node</span>&lt;T&gt;(<span class="keyword">this</span>, &amp;x, <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()-&gt;<span class="built_in">prev</span>(), <span class="keyword">this</span>-&gt;<span class="built_in">end</span>());</span><br><span class="line">      <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()-&gt;<span class="built_in">prev</span>()-&gt;<span class="built_in">init_upd</span>(<span class="literal">nullptr</span>, NewNode);</span><br><span class="line">      <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()-&gt;<span class="built_in">init_upd</span>(NewNode, <span class="literal">nullptr</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">rm</span><span class="params">(node&lt;T&gt; *nd)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (nd-&gt;L != <span class="keyword">this</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span> (nd == <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span> (nd == <span class="keyword">this</span>-&gt;<span class="built_in">begin</span>()) &#123;</span><br><span class="line">      <span class="keyword">auto</span> it = <span class="keyword">this</span>-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">find</span>(&amp;<span class="keyword">this</span>-&gt;beginPS);</span><br><span class="line">      <span class="keyword">if</span> (it == <span class="keyword">this</span>-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">end</span>())</span><br><span class="line">        <span class="keyword">this</span>-&gt;Recorder-&gt;ch.<span class="built_in">top</span>().<span class="built_in">insert</span>(&amp;<span class="keyword">this</span>-&gt;beginPS);</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">pop</span>();</span><br><span class="line">      <span class="keyword">this</span>-&gt;beginPS.<span class="built_in">push</span>(nd-&gt;<span class="built_in">next</span>());</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      nd-&gt;<span class="built_in">prev</span>()-&gt;<span class="built_in">upd</span>(<span class="literal">nullptr</span>, nd-&gt;<span class="built_in">next</span>());</span><br><span class="line">      nd-&gt;<span class="built_in">next</span>()-&gt;<span class="built_in">upd</span>(nd-&gt;<span class="built_in">prev</span>(), <span class="literal">nullptr</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">T *<span class="title">front</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;<span class="built_in">begin</span>()-&gt;X; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">T *<span class="title">back</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;<span class="built_in">end</span>()-&gt;<span class="built_in">prev</span>()-&gt;X; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">rmRecorder</span> &#123;</span><br><span class="line">  stack&lt;set&lt;stack&lt;node&lt;T&gt; *&gt; *&gt;&gt; ch;</span><br><span class="line">  <span class="type">int</span> layer = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">rmRecorder</span>() &#123; <span class="keyword">this</span>-&gt;<span class="built_in">nextLayer</span>(); &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">nextLayer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;ch.<span class="built_in">push</span>(set&lt;stack&lt;node&lt;T&gt; *&gt; *&gt;());</span><br><span class="line">    <span class="keyword">this</span>-&gt;layer++;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">backtrack</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> it = <span class="keyword">this</span>-&gt;ch.<span class="built_in">top</span>().<span class="built_in">begin</span>(); it != <span class="keyword">this</span>-&gt;ch.<span class="built_in">top</span>().<span class="built_in">end</span>(); it++)</span><br><span class="line">      (*it)-&gt;<span class="built_in">pop</span>();</span><br><span class="line">    <span class="keyword">this</span>-&gt;layer--;</span><br><span class="line">    ch.<span class="built_in">pop</span>();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="数据结构部分">数据结构部分：</h4>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Literal</span> &#123;</span><br><span class="line">  llu index;  <span class="comment">//</span></span><br><span class="line">  <span class="type">bool</span> neg;</span><br><span class="line">  CNF *cnf;</span><br><span class="line">  node&lt;Clause&gt; *cl;</span><br><span class="line">  node&lt;Occur&gt; *oc;</span><br><span class="line">  <span class="built_in">Literal</span>(CNF *_cnf, string s, <span class="type">bool</span> _neg);</span><br><span class="line">  <span class="function">string <span class="title">str</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">RemoveOccurrence</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Clause</span> &#123;</span><br><span class="line">  slist&lt;Literal&gt; *lt;</span><br><span class="line">  CNF *cnf;</span><br><span class="line">  <span class="built_in">Clause</span>(CNF *_cnf);</span><br><span class="line">  <span class="function">string <span class="title">str</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Occur</span> &#123;</span><br><span class="line">  node&lt;Literal&gt; *lit;</span><br><span class="line">  <span class="built_in">Occur</span>(node&lt;Literal&gt; *_lit) &#123; <span class="keyword">this</span>-&gt;lit = _lit; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">AvAtom</span> &#123;</span><br><span class="line">  llu index;</span><br><span class="line">  slist&lt;Occur&gt; *oc;</span><br><span class="line">  CNF *cnf;</span><br><span class="line">  <span class="built_in">AvAtom</span>(CNF *_cnf, llu i);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">CNF</span> &#123;</span><br><span class="line">  map&lt;string, llu&gt; Dict;</span><br><span class="line">  vector&lt;string&gt; Atoms;</span><br><span class="line">  vector&lt;ll&gt; scheme;</span><br><span class="line">  llu AtomN = <span class="number">0</span>;</span><br><span class="line">  slist&lt;Clause&gt; CL;</span><br><span class="line">  slist&lt;AvAtom&gt; AVA;</span><br><span class="line">  vector&lt;node&lt;AvAtom&gt; *&gt; avAtoms;</span><br><span class="line">  rmRecorder&lt;Literal&gt; Rec_Literal;</span><br><span class="line">  rmRecorder&lt;Clause&gt; Rec_Clause;</span><br><span class="line">  rmRecorder&lt;Occur&gt; Rec_Occur;</span><br><span class="line">  rmRecorder&lt;AvAtom&gt; Rec_AvAtom;</span><br><span class="line">  stack&lt;list&lt;ll&gt;&gt; Rec_assign;</span><br><span class="line">  <span class="built_in">CNF</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;CL.<span class="built_in">regRec</span>(&amp;<span class="keyword">this</span>-&gt;Rec_Clause);</span><br><span class="line">    <span class="keyword">this</span>-&gt;AVA.<span class="built_in">regRec</span>(&amp;<span class="keyword">this</span>-&gt;Rec_AvAtom);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">read</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function">string <span class="title">str</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function">string <span class="title">occurStr</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function">string <span class="title">schemeStr</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">removeLiteral</span><span class="params">(node&lt;Clause&gt; *cl, node&lt;Literal&gt; *lit)</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">removeClause</span><span class="params">(node&lt;Clause&gt; *cl)</span></span>;</span><br><span class="line">  <span class="function">ll <span class="title">AssignLiteralIn</span><span class="params">(node&lt;Clause&gt; *cl, node&lt;Literal&gt; *unit)</span></span>;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">PureLiteralAssign</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">UnitPropagate</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">nextLayer</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="type">void</span> <span class="title">backtrack</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="type">bool</span> containEmptyClause = <span class="literal">false</span>;</span><br><span class="line">  <span class="function"><span class="type">bool</span> <span class="title">DPLL</span><span class="params">(<span class="type">bool</span> disableSimp)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CNF::removeLiteral</span><span class="params">(node&lt;Clause&gt; *cl, node&lt;Literal&gt; *lit)</span> </span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;DEL literal \&quot;&quot;</span> &lt;&lt; lit-&gt;X-&gt;<span class="built_in">str</span>() &lt;&lt; <span class="string">&quot;\&quot; in \&quot;&quot;</span> &lt;&lt; cl-&gt;X-&gt;<span class="built_in">str</span>()</span><br><span class="line">       &lt;&lt; <span class="string">&quot;\&quot;&quot;</span> &lt;&lt; endl;</span><br><span class="line">  lit-&gt;X-&gt;<span class="built_in">RemoveOccurrence</span>();</span><br><span class="line">  cl-&gt;X-&gt;lt-&gt;<span class="built_in">rm</span>(lit);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CNF::removeClause</span><span class="params">(node&lt;Clause&gt; *cl)</span> </span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;DEL Clause \&quot;&quot;</span> &lt;&lt; cl-&gt;X-&gt;<span class="built_in">str</span>() &lt;&lt; <span class="string">&quot;\&quot;&quot;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> lit = cl-&gt;X-&gt;lt-&gt;<span class="built_in">begin</span>(); lit != cl-&gt;X-&gt;lt-&gt;<span class="built_in">end</span>();</span><br><span class="line">       lit = lit-&gt;<span class="built_in">next</span>())</span><br><span class="line">    lit-&gt;X-&gt;<span class="built_in">RemoveOccurrence</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;CL.<span class="built_in">rm</span>(cl);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CNF::nextLayer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Literal.<span class="built_in">nextLayer</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Clause.<span class="built_in">nextLayer</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Occur.<span class="built_in">nextLayer</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_AvAtom.<span class="built_in">nextLayer</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">push</span>(<span class="built_in">list</span>&lt;ll&gt;());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">CNF::backtrack</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Literal.<span class="built_in">backtrack</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Clause.<span class="built_in">backtrack</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_Occur.<span class="built_in">backtrack</span>();</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_AvAtom.<span class="built_in">backtrack</span>();</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> it = <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">top</span>().<span class="built_in">begin</span>();</span><br><span class="line">       it != <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">top</span>().<span class="built_in">end</span>(); it++)</span><br><span class="line">    <span class="keyword">this</span>-&gt;scheme[*it] = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">pop</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="算法主体部分">算法主体部分：</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ll <span class="title">CNF::AssignLiteralIn</span><span class="params">(node&lt;Clause&gt; *cl, node&lt;Literal&gt; *unit)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>-&gt;scheme[unit-&gt;X-&gt;index] = unit-&gt;X-&gt;neg ? <span class="number">2</span> : <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">top</span>().<span class="built_in">push_back</span>(unit-&gt;X-&gt;index);</span><br><span class="line">  <span class="type">bool</span> changed = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> it = cl-&gt;X-&gt;lt-&gt;<span class="built_in">begin</span>(); it != cl-&gt;X-&gt;lt-&gt;<span class="built_in">end</span>(); it = it-&gt;<span class="built_in">next</span>())</span><br><span class="line">    <span class="keyword">if</span> (it-&gt;X-&gt;index == unit-&gt;X-&gt;index) &#123;</span><br><span class="line">      <span class="keyword">if</span> (it-&gt;X-&gt;neg == unit-&gt;X-&gt;neg) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">removeClause</span>(cl);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">removeLiteral</span>(cl, it);</span><br><span class="line">        <span class="keyword">if</span> (cl-&gt;X-&gt;lt-&gt;<span class="built_in">empty</span>()) &#123;</span><br><span class="line">          <span class="keyword">this</span>-&gt;containEmptyClause = <span class="literal">true</span>;</span><br><span class="line">          <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        changed = <span class="literal">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">return</span> changed ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">CNF::UnitPropagate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">bool</span> ok = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> it1 = <span class="keyword">this</span>-&gt;CL.<span class="built_in">begin</span>(); it1 != <span class="keyword">this</span>-&gt;CL.<span class="built_in">end</span>(); it1 = it1-&gt;<span class="built_in">next</span>())</span><br><span class="line">    <span class="keyword">if</span> (it1-&gt;X-&gt;lt-&gt;<span class="built_in">single</span>()) &#123;</span><br><span class="line">      node&lt;Literal&gt; *A = it1-&gt;X-&gt;lt-&gt;<span class="built_in">begin</span>();</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">auto</span> it2 = <span class="keyword">this</span>-&gt;CL.<span class="built_in">begin</span>(); it2 != <span class="keyword">this</span>-&gt;CL.<span class="built_in">end</span>();</span><br><span class="line">           it2 = it2-&gt;<span class="built_in">next</span>()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (it1 == it2) <span class="keyword">continue</span>;</span><br><span class="line">        ll res = <span class="keyword">this</span>-&gt;<span class="built_in">AssignLiteralIn</span>(it2, A);</span><br><span class="line">        <span class="keyword">if</span> (res == <span class="number">2</span>) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (res) ok = <span class="literal">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (ok) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">CNF::PureLiteralAssign</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (llu i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>-&gt;AtomN; i++)</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;avAtoms[i]-&gt;X-&gt;oc-&gt;<span class="built_in">single</span>()) &#123;</span><br><span class="line">      <span class="keyword">this</span>-&gt;scheme[<span class="keyword">this</span>-&gt;avAtoms[i]-&gt;X-&gt;index] =</span><br><span class="line">          <span class="keyword">this</span>-&gt;avAtoms[i]-&gt;X-&gt;oc-&gt;<span class="built_in">begin</span>()-&gt;X-&gt;lit-&gt;X-&gt;neg ? <span class="number">2</span> : <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">top</span>().<span class="built_in">push_back</span>(<span class="keyword">this</span>-&gt;avAtoms[i]-&gt;X-&gt;index);</span><br><span class="line">      <span class="keyword">this</span>-&gt;<span class="built_in">removeClause</span>(<span class="keyword">this</span>-&gt;avAtoms[i]-&gt;X-&gt;oc-&gt;<span class="built_in">begin</span>()-&gt;X-&gt;lit-&gt;X-&gt;cl);</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">CNF::DPLL</span><span class="params">(<span class="type">bool</span> disableSimp = <span class="literal">false</span>)</span> </span>&#123;</span><br><span class="line">  stack&lt;ll&gt; STACK;</span><br><span class="line">  AvAtom *x;</span><br><span class="line">  ll layerNow = <span class="number">-1</span>, Status;</span><br><span class="line">  STACK.<span class="built_in">push</span>(<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">while</span> (!STACK.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">    Status = STACK.<span class="built_in">top</span>();</span><br><span class="line">    STACK.<span class="built_in">pop</span>();</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;=== NEW STATUS : &quot;</span> &lt;&lt; Status &lt;&lt; <span class="string">&quot; ===&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">while</span> (layerNow &gt;= <span class="built_in">abs</span>(Status)) &#123;</span><br><span class="line">      layerNow--;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;BACKTRACK: -&gt; &quot;</span> &lt;&lt; layerNow &lt;&lt; endl;</span><br><span class="line">      <span class="keyword">this</span>-&gt;<span class="built_in">backtrack</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    layerNow = <span class="built_in">abs</span>(Status);</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;FORMULA: begin processing(layer=&quot;</span> &lt;&lt; layerNow</span><br><span class="line">               &lt;&lt; <span class="string">&quot;):&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="keyword">this</span>-&gt;<span class="built_in">str</span>();</span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">nextLayer</span>();</span><br><span class="line">    <span class="keyword">if</span> (Status == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;INIT: skip assignments&quot;</span> &lt;&lt; endl;</span><br><span class="line">      <span class="keyword">goto</span> SIMPLIFICATION;</span><br><span class="line">    &#125;</span><br><span class="line">    x = <span class="keyword">this</span>-&gt;AVA.<span class="built_in">begin</span>()-&gt;X;</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;ASSIGN: \&quot;&quot;</span> &lt;&lt; Atoms[x-&gt;index] &lt;&lt; <span class="string">&quot;\&quot; -&gt; &quot;</span></span><br><span class="line">               &lt;&lt; (Status &gt; <span class="number">0</span> ? <span class="string">&quot;True&quot;</span> : <span class="string">&quot;False&quot;</span>) &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">this</span>-&gt;scheme[x-&gt;index] = Status &gt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">this</span>-&gt;Rec_assign.<span class="built_in">top</span>().<span class="built_in">push_back</span>(x-&gt;index);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> it = x-&gt;oc-&gt;<span class="built_in">begin</span>(); it != x-&gt;oc-&gt;<span class="built_in">end</span>(); it = it-&gt;<span class="built_in">next</span>()) &#123;</span><br><span class="line">      <span class="keyword">if</span> ((Status &lt; <span class="number">0</span>) == it-&gt;X-&gt;lit-&gt;X-&gt;neg)</span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">removeClause</span>(it-&gt;X-&gt;lit-&gt;X-&gt;cl);</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">removeLiteral</span>(it-&gt;X-&gt;lit-&gt;X-&gt;cl, it-&gt;X-&gt;lit);</span><br><span class="line">        <span class="keyword">if</span> (it-&gt;X-&gt;lit-&gt;X-&gt;cl-&gt;X-&gt;lt-&gt;<span class="built_in">empty</span>()) &#123;</span><br><span class="line">          <span class="keyword">this</span>-&gt;containEmptyClause = <span class="literal">true</span>;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;FORMULA: finish assignments:&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; <span class="keyword">this</span>-&gt;<span class="built_in">str</span>();</span><br><span class="line">  SIMPLIFICATION:</span><br><span class="line">    <span class="keyword">if</span> (!disableSimp) &#123;</span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">this</span>-&gt;<span class="built_in">UnitPropagate</span>()) &#123;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;FORMULA: Unit-propagatated:&quot;</span> &lt;&lt; endl;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="keyword">this</span>-&gt;<span class="built_in">str</span>();</span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">this</span>-&gt;<span class="built_in">PureLiteralAssign</span>()) &#123;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;FORMULA: Pure-literal-assigned:&quot;</span> &lt;&lt; endl;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="keyword">this</span>-&gt;<span class="built_in">str</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;CL.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;***FORMULA IS EMPTY: It can be satisfied.&quot;</span> &lt;&lt; endl;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;***ALGORITHM FINISHED.&quot;</span> &lt;&lt; endl;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;containEmptyClause) &#123;</span><br><span class="line">      <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;***FORMULA CONTAIN EMPTY CLAUSES: backtrack.&quot;</span> &lt;&lt; endl</span><br><span class="line">                 &lt;&lt; endl;</span><br><span class="line">      <span class="keyword">this</span>-&gt;containEmptyClause = <span class="literal">false</span>;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    STACK.<span class="built_in">push</span>(<span class="built_in">abs</span>(Status) + <span class="number">1</span>);</span><br><span class="line">    STACK.<span class="built_in">push</span>(-<span class="built_in">abs</span>(Status) - <span class="number">1</span>);</span><br><span class="line">    <span class="comment">/***/</span> cout &lt;&lt; endl;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;***The formula cannot be satisfied.&quot;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="comment">/***/</span> cout &lt;&lt; <span class="string">&quot;***ALGORITHM FINISHED.&quot;</span> &lt;&lt; endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="代码使用示例">代码使用示例</h3>
+<p>最低 C++ 标准：C++ 11</p>
+<p>输入格式：一行一个正整数 <span
+class="math inline">\(n\)</span>，表示合取范式包含 <span
+class="math inline">\(n\)</span> 个子句。接下来 <span
+class="math inline">\(n\)</span> 行，第 <span
+class="math inline">\(i\)</span> 行开头为一个正整数 <span
+class="math inline">\(k_i\)</span> 表示该子句包含 <span
+class="math inline">\(k_i\)</span> 个文字，随即有 <span
+class="math inline">\(k_i\)</span>
+个以空格分隔的字符串，表示各个文字，若该字符串以<code>^</code>开头，则表示该文字为否定文字。</p>
+<p>例如，下列合取范式： <span class="math display">\[
+\begin{aligned}
+&amp;(a\vee b)\\
+\wedge\ &amp;(\neg a\vee\neg c)\\
+\wedge\ &amp;(b\vee\neg t\vee a\vee\neg c)\\
+\wedge\ &amp;(c\vee d)\\
+\wedge\ &amp;a
+\end{aligned}
+\]</span> 的输入代码就为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">5</span><br><span class="line">2 a b</span><br><span class="line">2 ^a ^c</span><br><span class="line">4 b ^t a ^c</span><br><span class="line">2 c d</span><br><span class="line">1 a</span><br></pre></td></tr></table></figure>
+<p>包含头文件<code>dpll.hpp</code>，保证其和<code>slist.hpp</code>在同一文件夹下，即可创建<code>CNF</code>对象，调用其<code>.read()</code>方法以从标准输入输出中读入合取范式。接着便可通过调用方法<code>.DPLL()</code>应用算法（加上参数<code>true</code>可以使算法跳过化简步骤），许多调试信息都会一并输出出来。如果要获取一种可行的赋值方案（前提是公式可满足），可以在应用
+DPLL 算法后输出 <code>.schemeStr()</code>
+方法生成的字符串，其样式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;a&quot; -&gt; True</span><br><span class="line">&quot;b&quot; -&gt; _</span><br><span class="line">&quot;c&quot; -&gt; False</span><br><span class="line">&quot;t&quot; -&gt; _</span><br><span class="line">&quot;d&quot; -&gt; True</span><br></pre></td></tr></table></figure>
+<p>每行表示一个变量的赋值，若赋值为下划线<code>_</code>则说明其赋值为<code>true</code>或<code>false</code>均可。</p>
+<p>我们对上述合取范式示例应用算法，输出应为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">=== NEW STATUS : 0 ===</span><br><span class="line">FORMULA: begin processing(layer=0):</span><br><span class="line">&#123;</span><br><span class="line">| 　 ( a ∨ b )</span><br><span class="line">| ∧ ( ¬a ∨ ¬c )</span><br><span class="line">| ∧ ( b ∨ ¬t ∨ a ∨ ¬c )</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">| ∧ a</span><br><span class="line">&#125;</span><br><span class="line">INIT: skip assignments</span><br><span class="line">DEL Clause &quot;a ∨ b&quot;</span><br><span class="line">DEL literal &quot;¬a&quot; in &quot;¬a ∨ ¬c&quot;</span><br><span class="line">DEL Clause &quot;b ∨ ¬t ∨ a ∨ ¬c&quot;</span><br><span class="line">DEL literal &quot;c&quot; in &quot;c ∨ d&quot;</span><br><span class="line">FORMULA: Unit-propagatated:</span><br><span class="line">&#123;</span><br><span class="line">| 　 ¬c</span><br><span class="line">| ∧ d</span><br><span class="line">| ∧ a</span><br><span class="line">&#125;</span><br><span class="line">DEL Clause &quot;a&quot;</span><br><span class="line">DEL Clause &quot;¬c&quot;</span><br><span class="line">DEL Clause &quot;d&quot;</span><br><span class="line">FORMULA: Pure-literal-assigned:</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line">***FORMULA IS EMPTY: It can be satisfied.</span><br><span class="line">***ALGORITHM FINISHED.</span><br><span class="line">1</span><br><span class="line">&quot;a&quot; -&gt; True</span><br><span class="line">&quot;b&quot; -&gt; _</span><br><span class="line">&quot;c&quot; -&gt; False</span><br><span class="line">&quot;t&quot; -&gt; _</span><br><span class="line">&quot;d&quot; -&gt; True</span><br></pre></td></tr></table></figure>
+<p>从中可以清晰地看到算法执行的流程和经过各个化简步骤后公式的内容。这条公式经过一次化简后就足以判断其是否可满足了，我们通过<code>.DPLL(true)</code>禁用化简步骤可以清晰地看到算法回溯的过程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">=== NEW STATUS : 0 ===</span><br><span class="line">FORMULA: begin processing(layer=0):</span><br><span class="line">&#123;</span><br><span class="line">| 　 ( a ∨ b )</span><br><span class="line">| ∧ ( ¬a ∨ ¬c )</span><br><span class="line">| ∧ ( b ∨ ¬t ∨ a ∨ ¬c )</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">| ∧ a</span><br><span class="line">&#125;</span><br><span class="line">INIT: skip assignments</span><br><span class="line"></span><br><span class="line">=== NEW STATUS : -1 ===</span><br><span class="line">FORMULA: begin processing(layer=1):</span><br><span class="line">&#123;</span><br><span class="line">| 　 ( a ∨ b )</span><br><span class="line">| ∧ ( ¬a ∨ ¬c )</span><br><span class="line">| ∧ ( b ∨ ¬t ∨ a ∨ ¬c )</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">| ∧ a</span><br><span class="line">&#125;</span><br><span class="line">ASSIGN: &quot;a&quot; -&gt; False</span><br><span class="line">DEL literal &quot;a&quot; in &quot;a ∨ b&quot;</span><br><span class="line">DEL Clause &quot;¬a ∨ ¬c&quot;</span><br><span class="line">DEL literal &quot;a&quot; in &quot;b ∨ ¬t ∨ a ∨ ¬c&quot;</span><br><span class="line">DEL literal &quot;a&quot; in &quot;a&quot;</span><br><span class="line">FORMULA: finish assignments:</span><br><span class="line">&#123;</span><br><span class="line">| 　 b</span><br><span class="line">| ∧ ( b ∨ ¬t ∨ ¬c )</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">| ∧ (  )</span><br><span class="line">&#125;</span><br><span class="line">***FORMULA CONTAIN EMPTY CLAUSES: backtrack.</span><br><span class="line"></span><br><span class="line">=== NEW STATUS : 1 ===</span><br><span class="line">BACKTRACK: -&gt; 0</span><br><span class="line">FORMULA: begin processing(layer=1):</span><br><span class="line">&#123;</span><br><span class="line">| 　 ( a ∨ b )</span><br><span class="line">| ∧ ( ¬a ∨ ¬c )</span><br><span class="line">| ∧ ( b ∨ ¬t ∨ a ∨ ¬c )</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">| ∧ a</span><br><span class="line">&#125;</span><br><span class="line">ASSIGN: &quot;a&quot; -&gt; True</span><br><span class="line">DEL Clause &quot;a ∨ b&quot;</span><br><span class="line">DEL literal &quot;¬a&quot; in &quot;¬a ∨ ¬c&quot;</span><br><span class="line">DEL Clause &quot;b ∨ ¬t ∨ a ∨ ¬c&quot;</span><br><span class="line">DEL Clause &quot;a&quot;</span><br><span class="line">FORMULA: finish assignments:</span><br><span class="line">&#123;</span><br><span class="line">| 　 ¬c</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">=== NEW STATUS : -2 ===</span><br><span class="line">FORMULA: begin processing(layer=2):</span><br><span class="line">&#123;</span><br><span class="line">| 　 ¬c</span><br><span class="line">| ∧ ( c ∨ d )</span><br><span class="line">&#125;</span><br><span class="line">ASSIGN: &quot;c&quot; -&gt; False</span><br><span class="line">DEL Clause &quot;¬c&quot;</span><br><span class="line">DEL literal &quot;c&quot; in &quot;c ∨ d&quot;</span><br><span class="line">FORMULA: finish assignments:</span><br><span class="line">&#123;</span><br><span class="line">| 　 d</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">=== NEW STATUS : -3 ===</span><br><span class="line">FORMULA: begin processing(layer=3):</span><br><span class="line">&#123;</span><br><span class="line">| 　 d</span><br><span class="line">&#125;</span><br><span class="line">ASSIGN: &quot;d&quot; -&gt; False</span><br><span class="line">DEL literal &quot;d&quot; in &quot;d&quot;</span><br><span class="line">FORMULA: finish assignments:</span><br><span class="line">&#123;</span><br><span class="line">| 　 (  )</span><br><span class="line">&#125;</span><br><span class="line">***FORMULA CONTAIN EMPTY CLAUSES: backtrack.</span><br><span class="line"></span><br><span class="line">=== NEW STATUS : 3 ===</span><br><span class="line">BACKTRACK: -&gt; 2</span><br><span class="line">FORMULA: begin processing(layer=3):</span><br><span class="line">&#123;</span><br><span class="line">| 　 d</span><br><span class="line">&#125;</span><br><span class="line">ASSIGN: &quot;d&quot; -&gt; True</span><br><span class="line">DEL Clause &quot;d&quot;</span><br><span class="line">FORMULA: finish assignments:</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line">***FORMULA IS EMPTY: It can be satisfied.</span><br><span class="line">***ALGORITHM FINISHED.</span><br><span class="line">1</span><br><span class="line">&quot;a&quot; -&gt; True</span><br><span class="line">&quot;b&quot; -&gt; _</span><br><span class="line">&quot;c&quot; -&gt; False</span><br><span class="line">&quot;t&quot; -&gt; _</span><br><span class="line">&quot;d&quot; -&gt; True</span><br></pre></td></tr></table></figure>
+<p>输出中间出现<code>BACKTRACK</code>就说明算法执行了一次回溯，将公式还原回赋值、化简前的形态。</p>
+<h3 id="参考">参考</h3>
+<ul>
+<li><p>Boolean satisfiability problem - Wikipedia <a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Boolean_satisfiability_problem">https://en.wikipedia.org/wiki/Boolean_satisfiability_problem</a></p></li>
+<li><p>DPLL algorithm - Wikipedia <a
+target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/DPLL_algorithm">https://en.wikipedia.org/wiki/DPLL_algorithm</a></p></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/02/04/%E5%9C%A8-Coq-%E4%B8%AD%E5%BD%A2%E5%BC%8F%E5%8C%96-100-%E4%B8%AA%E5%AE%9A%E7%90%86/" rel="prev" title="在 Coq 中形式化 100 个定理">
+                  <i class="fa fa-chevron-left"></i> 在 Coq 中形式化 100 个定理
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Chesium</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js","integrity":"sha256-r+3itOMtGGjap0x+10hu6jW/gZCzxHsoKrOd7gyRSGY="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
